@@ -26,10 +26,11 @@ class Client {
      * to make possible to track the job afterwards.
      *
      * @param Job
+     * @param routingKey
      * @return a String with the hash identifying the job in the entire system
      */
-    String queue(final Job job) {
-        return driver.queue(job)
+    String queue(final String routingKey, final Job job) {
+        return driver.queue(routingKey, job)
     }
 
     /**
@@ -37,10 +38,11 @@ class Client {
      * passed as parameter
      *
      * @param jobID
+     * @param routingKey
      * @return an instance of a JobStatus enumeration
      */
-    JobStatus status(final String  jobID) {
-        return driver.status(jobID)
+    JobStatus status(final String routingKey, final String  jobID) {
+        return driver.status(routingKey, jobID)
     }
 
     /**
@@ -48,10 +50,11 @@ class Client {
      * passed as parameter
      *
      * @param jobID
+     * @param routingKey
      * @return the result of the execution of the job
      */
-    Object get(final String jobID) {
-        return driver.get(jobID)
+    Object get(final String routingKey, final String jobID) {
+        return driver.get(routingKey, jobID)
     }
 
 }

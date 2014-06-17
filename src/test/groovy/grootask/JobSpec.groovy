@@ -18,31 +18,33 @@ class JobSpec extends Specification {
         and: 'Some input'
         Input input = new Input(name:'John')
 
+        and: 'Configuration'
+        File file = new File('src/test/resources/grootask/Config.groovy')
+        Configuration config = new ConfigurationBuilder(file.toURL()).build()
+
         and: 'A executor to launch the process'
-        // TODO driver params
-        Configuration config = new Configuration(driverClass: InMemoryDriver)
-        Client client = new ClientBuilder(configuration).build() // SIMPLE OBJECT
-        Server server = new ServerBuilder(configuration).build() // ACTOR
+        Client client = new ClientBuilder(config).build() // SIMPLE OBJECT
+        Server server = new ServerBuilder(config).build() // ACTOR
 
         when: 'Sending the job to the broker'
         String jobId =
             client.queue(
-                'inbox',
-                job.data(immutableData).
+                'priority-queue',
+                job.data(input).
                     output(Output).
-                    task(A,B,C)
+                    task(TaskSpecSample)
             )
 
         then: 'The job need some time to finish'
-        client.status(jobId) in [PENDING, WORKING]
+        client.status('priority-queue', jobId) in [PENDING, WORKING]
 
         and: 'The solution should have been processed successfully'
-        with(client.get(jobId)) {
+        with(client.get('priority-queue', jobId)) {
             name == 'modified John'
         }
 
         and: 'The job should have been marked as DONE by the client local memory'
-        client.status(jobId) == DONE
+        client.status('priority-queue', jobId) == DONE
     }
 
 }
