@@ -1,0 +1,5 @@
+package grootask
+
+class Configuration {
+
+}
