@@ -1,7 +1,5 @@
 package grootask
 
-import groovyx.gpars.activeobject.ActiveObject
-import groovyx.gpars.activeobject.ActiveMethod
 import groovyx.gpars.dataflow.DataflowVariable
 
 abstract class Task<I,O> {
