@@ -3,17 +3,17 @@ package grootask
 class Job {
 
     Class output
-    Object singleData
+    Object sharedData
 
-    List<Task> taskList = []
+    List<Class<Task>> taskList = []
 
     Job data(Object data) {
-        this.singleData = data
+        this.sharedData = data
         this
     }
 
-    Job task(Task task) {
-        this.taskList << task
+    Job task(Class<Task> taskClass) {
+        this.taskList << taskClass
         this
     }
 
