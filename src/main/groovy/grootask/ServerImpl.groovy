@@ -14,16 +14,15 @@ class ServerImpl extends DefaultActor implements Server {
     void act() {
         loop {
             Job nextJob = driver.get('priority-queue')
-            println "------------->${nextJob.id}"
-            Thread.sleep(2000)
-            nextJob.status = JobStatus.DONE
-            driver.queue('outbox', nextJob)
-            react { ServerEvent event ->
-                switch(event.signal) {
-                    default:
-                        println "SIGNAL: ${event.signal}"
-                    break
-                }
+            if (nextJob) {
+                Thread.sleep(2000)
+                nextJob.status = JobStatus.DONE
+                nextJob.result = nextJob.taskList.collect {
+                    def a = it.execute()
+                    println "result:$a"
+                    a
+                }.first()
+                driver.queue('outbox', nextJob)
             }
         }
     }
