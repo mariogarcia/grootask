@@ -6,6 +6,8 @@ import static grootask.JobStatus.WORKING
 
 import grootask.aux.Input
 import grootask.aux.Output
+import grootask.driver.Driver
+import grootask.driver.DriverBuilder
 import grootask.driver.InMemoryDriver
 
 import spock.lang.Specification
@@ -22,10 +24,11 @@ class JobSpec extends Specification {
         and: 'Configuration'
         Configuration config =
             new Configuration(driverInstance: new InMemoryDriver())
+        Driver driver = new DriverBuilder(config).build()
 
         and: 'A executor to launch the process'
-        Client client = new ClientBuilder(config).build() // SIMPLE OBJECT
-        Server server = new ServerBuilder(config).build().start() // ACTOR
+        Client client = new Client(driver: driver) // SIMPLE OBJECT
+        Server server = new ServerImpl(driver).start() // ACTOR
 
         when: 'Sending the job to the broker'
         String jobId =
@@ -35,7 +38,9 @@ class JobSpec extends Specification {
                     task(TaskSpecSample)
             )
         assert jobId
-        while(client.status(jobId) in [PENDING, WORKING]) { Thread.sleep(2000) }
+        while(client.status(jobId) in [PENDING, WORKING]) {
+            Thread.sleep(2000)
+        }
 
         then: 'The solution should have been processed successfully'
         client.getFinished(jobId)
