@@ -6,6 +6,7 @@ import static grootask.JobStatus.WORKING
 
 import grootask.aux.Input
 import grootask.aux.Output
+import grootask.driver.InMemoryDriver
 
 import spock.lang.Specification
 
@@ -19,12 +20,12 @@ class JobSpec extends Specification {
         Input input = new Input(name:'John')
 
         and: 'Configuration'
-        File file = new File('src/test/resources/grootask/Config.groovy')
-        Configuration config = new ConfigurationBuilder(file.toURL()).build()
+        Configuration config =
+            new Configuration(driverInstance: new InMemoryDriver().start())
 
         and: 'A executor to launch the process'
         Client client = new ClientBuilder(config).build() // SIMPLE OBJECT
-        Server server = new ServerBuilder(config).build() // ACTOR
+        Server server = new ServerBuilder(config).build().start() // ACTOR
 
         when: 'Sending the job to the broker'
         String jobId =
@@ -34,14 +35,11 @@ class JobSpec extends Specification {
                     output(Output).
                     task(TaskSpecSample)
             )
+        assert jobId
+        while(client.status('priority-queue', jobId) in [PENDING, WORKING]) { Thread.sleep(2000) }
 
-        then: 'The job need some time to finish'
-        client.status('priority-queue', jobId) in [PENDING, WORKING]
-
-        and: 'The solution should have been processed successfully'
-        with(client.get('priority-queue', jobId)) {
-            name == 'modified John'
-        }
+        then: 'The solution should have been processed successfully'
+        client.get('priority-queue', jobId).result.name == 'modified John'
 
         and: 'The job should have been marked as DONE by the client local memory'
         client.status('priority-queue', jobId) == DONE

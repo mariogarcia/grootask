@@ -2,6 +2,9 @@ package grootask
 
 class Job {
 
+    String id
+    Object result
+    JobStatus status = JobStatus.PENDING
     Class output
     Object sharedData
 

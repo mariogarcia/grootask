@@ -36,4 +36,6 @@ interface Driver {
      */
     Object get(final String routingKey, final String jobID)
 
+    Object get(final String routingKey)
+
 }

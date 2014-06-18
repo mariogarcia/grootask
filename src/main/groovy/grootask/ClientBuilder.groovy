@@ -10,7 +10,7 @@ class ClientBuilder {
 
     Client build() {
         def driverClass = configuration.driverClass
-        def specificDriver = driverClass.newInstance()
+        def specificDriver = configuration.driverInstance ?: driverClass.newInstance()
 
         return new Client(driver: specificDriver)
     }
