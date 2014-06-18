@@ -1,15 +1,12 @@
 package grootask
 
-import groovyx.gpars.dataflow.DataflowVariable
+import java.lang.annotation.Target
+import java.lang.annotation.Retention
+import java.lang.annotation.ElementType
+import java.lang.annotation.RetentionPolicy
 
-abstract class Task<I,O> {
-
-    final I input
-
-    Task(final I input) {
-        this.input = input
-    }
-
-    abstract DataflowVariable<O> execute()
-
+@Target([ElementType.TYPE])
+@Retention(RetentionPolicy.SOURCE)
+@interface Task {
+    Class<?> value()
 }

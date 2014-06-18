@@ -8,14 +8,14 @@ class Job {
     Class output
     Object sharedData
 
-    List<Class<Task>> taskList = []
+    List<Class<AbstractTask>> taskList = []
 
     Job data(Object data) {
         this.sharedData = data
         this
     }
 
-    Job task(Class<Task> taskClass) {
+    Job task(Class<AbstractTask> taskClass) {
         this.taskList << taskClass
         this
     }
