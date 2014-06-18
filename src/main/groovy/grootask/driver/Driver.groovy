@@ -12,6 +12,5 @@ interface Driver {
     Object getPending()
 
     void finish(final Job job)
-    void setQueue(final DriverQueue type, final String name)
 
 }

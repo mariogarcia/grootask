@@ -22,13 +22,13 @@ class JobSpec extends Specification {
         Input input = new Input(name:'John')
 
         and: 'Configuration'
-        Configuration config =
-            new Configuration(driverInstance: new InMemoryDriver())
+        URL configFile = new File('src/test/resources/grootask/Config.groovy').toURL()
+        Configuration config = new ConfigurationBuilder(configFile).build()
         Driver driver = new DriverBuilder(config).build()
 
         and: 'A executor to launch the process'
-        Client client = new Client(driver: driver) // SIMPLE OBJECT
-        Server server = new ServerImpl(driver).start() // ACTOR
+        Client client = new Client(driver) // SIMPLE OBJECT
+        Server server = new Server(driver).start() // ACTOR
 
         when: 'Sending the job to the broker'
         String jobId =

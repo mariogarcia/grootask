@@ -18,7 +18,11 @@ import groovyx.gpars.dataflow.DataflowVariable
  */
 class Client {
 
-    Driver driver
+    final Driver driver
+
+    Client(final Driver driver) {
+        this.driver = driver
+    }
 
     String enqueue(final Job job) {
         return driver.enqueue(job)

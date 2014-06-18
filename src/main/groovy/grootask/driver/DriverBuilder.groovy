@@ -13,12 +13,7 @@ class DriverBuilder {
 
     Driver build() {
         def driverClass = configuration.driverClass
-        def driverInstance = configuration.driverInstance ?: driverClass.newInstance()
-
-        driverInstance.setQueue(DriverQueue.INBOX   , configuration.queues.inbox)
-        driverInstance.setQueue(DriverQueue.STATUS  , configuration.queues.status)
-        driverInstance.setQueue(DriverQueue.DONE    , configuration.queues.done)
-        driverInstance.setQueue(DriverQueue.FAILING , configuration.queues.failing)
+        def driverInstance = driverClass.newInstance(configuration)
 
         return driverInstance
     }
