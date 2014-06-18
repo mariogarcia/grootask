@@ -3,65 +3,53 @@ package grootask.driver
 import grootask.Job
 import grootask.JobStatus
 
-import groovyx.gpars.actor.DefaultActor
+import groovyx.gpars.activeobject.ActiveObject
+import groovyx.gpars.activeobject.ActiveMethod
 
+@ActiveObject
 class InMemoryDriver implements Driver {
 
     Driver driverActor
+    Map<DriverQueue,String> queueReference = [:]
+    Map queues = [:].withDefault { [:] }
 
-    static class SharedDriver extends DefaultActor implements Driver {
+    @ActiveMethod(blocking = true)
+    String enqueue(final Job job) {
+        job.id = job.id ?: "${new Date().time}"
+        queues[queueReference[DriverQueue.INBOX]].get(job.id, job)
+        queues[queueReference[DriverQueue.STATUS]].get(job.id, JobStatus.PENDING)
 
-        Map queues = [:].withDefault { [:] }
+        return job.id
+    }
 
-        String queue(final String routingKey, final Job job) {
-            job.id = job.id ?: "${new Date().time}"
-            queues[routingKey].get(job.id, job)
+    @ActiveMethod(blocking = true)
+    JobStatus status(final String  jobID) {
+        return queues?.get(queueReference[DriverQueue.STATUS])?.get(jobID).status ?: JobStatus.PENDING
+    }
 
-            return job.id
+    @ActiveMethod(blocking = true)
+    Object getFinished(final String jobID) {
+        return queues[queueReference[DriverQueue.DONE]][jobID]
+    }
+
+    @ActiveMethod(blocking = true)
+    Object getPending() {
+        if (!queues[queueReference[DriverQueue.INBOX]]) {
+           return
         }
-
-        JobStatus status(final String routingKey, final String  jobID) {
-            return queues?.get(routingKey)?.get(jobID).status ?: JobStatus.PENDING
-        }
-
-        Object get(final String routingKey, final String jobID) {
-            return queues[routingKey][jobID]
-        }
-
-        Object get(final String routingKey) {
-            if (!queues[routingKey]) {
-               return
-            }
-            return queues[routingKey].values().first()
-        }
-
-        void act() {
-            loop {
-                react { Map map ->
-                    reply this.invokeMethod(map.action, map.args)
-                }
-            }
-        }
+        return queues[queueReference[DriverQueue.INBOX]].values().first()
     }
 
-    Driver start() {
-        driverActor = new SharedDriver().start()
-        this
+    @ActiveMethod
+    void finish(final Job job) {
+        job.status = JobStatus.DONE
+        queues[queueReference[DriverQueue.DONE]].get(job.id, job)
+        queues[queueReference[DriverQueue.STATUS]].get(job.id, JobStatus.DONE)
     }
 
-    String queue(final String routingKey, final Job job) {
-        driverActor.sendAndWait([action: 'queue', args: [routingKey, job]])
+    @ActiveMethod
+    void setQueue(DriverQueue type, String name) {
+        this.queueReference[type, name]
     }
 
-    JobStatus status(final String routingKey, final String  jobID) {
-        driverActor.sendAndWait([action: 'status', args:[routingKey, jobID]])
-    }
-
-    Object get(final String routingKey, final String jobID) {
-        return driverActor.sendAndWait([action: 'get', args:[routingKey, jobID]])
-    }
-
-    Object get(final String routingKey) {
-        driverActor.sendAndWait([action: 'get', args:[routingKey]])
-    }
 }

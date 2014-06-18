@@ -4,9 +4,10 @@ driver {
 }
 
 queues {
-    ready    = '/inbox'
+    inbox    = '/inbox'
     status   = '/status'
-    finished = '/done'
+    failing  = '/failing'
+    done     = '/done'
 }
 
 

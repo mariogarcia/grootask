@@ -11,7 +11,8 @@ class ConfigurationBuilder {
     Configuration build() {
         def values = new ConfigSlurper().parse(configurationLocator)
         def config = new Configuration(
-            driverClass: values.driver.driverClass
+            driverClass: values.driver.driverClass,
+            queues: values.queues
         )
 
         return config

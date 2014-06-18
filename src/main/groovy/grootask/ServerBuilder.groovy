@@ -1,6 +1,7 @@
 package grootask
 
 import grootask.driver.Driver
+import grootask.driver.DriverQueue
 
 class ServerBuilder {
 
@@ -11,11 +12,16 @@ class ServerBuilder {
     }
 
     Server build() {
-        Driver driver =
+        Driver driverInstance =
             this.configuration.driverInstance ?:
-            this.configuration.driverClass.newInsntance()
+            this.configuration.driverClass.newInstance()
 
-        return new ServerImpl(driver)
+        driverInstance.setQueue(DriverQueue.INBOX   , configuration.queues.inbox)
+        driverInstance.setQueue(DriverQueue.STATUS  , configuration.queues.status)
+        driverInstance.setQueue(DriverQueue.DONE    , configuration.queues.done)
+        driverInstance.setQueue(DriverQueue.FAILING , configuration.queues.failing)
+
+        return new ServerImpl(driverInstance)
     }
 
 }

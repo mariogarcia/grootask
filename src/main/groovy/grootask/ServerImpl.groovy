@@ -13,7 +13,7 @@ class ServerImpl extends DefaultActor implements Server {
 
     void act() {
         loop {
-            Job nextJob = driver.get('priority-queue')
+            Job nextJob = driver.getPending()
             if (nextJob) {
                 nextJob.result =
                     nextJob.taskList.collect { taskClass ->
@@ -22,8 +22,7 @@ class ServerImpl extends DefaultActor implements Server {
                             execute().
                             get()
                     }.first()
-                nextJob.status = JobStatus.DONE
-                driver.queue('priority-queue', nextJob)
+                driver.finish(nextJob)
             }
         }
     }

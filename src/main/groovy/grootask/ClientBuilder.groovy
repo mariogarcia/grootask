@@ -1,5 +1,7 @@
 package grootask
 
+import grootask.driver.DriverQueue
+
 class ClientBuilder {
 
     final Configuration configuration
@@ -10,9 +12,14 @@ class ClientBuilder {
 
     Client build() {
         def driverClass = configuration.driverClass
-        def specificDriver = configuration.driverInstance ?: driverClass.newInstance()
+        def driverInstance = configuration.driverInstance ?: driverClass.newInstance()
 
-        return new Client(driver: specificDriver)
+        driverInstance.setQueue(DriverQueue.INBOX   , configuration.queues.inbox)
+        driverInstance.setQueue(DriverQueue.STATUS  , configuration.queues.status)
+        driverInstance.setQueue(DriverQueue.DONE    , configuration.queues.done)
+        driverInstance.setQueue(DriverQueue.FAILING , configuration.queues.failing)
+
+        return new Client(driver: driverInstance)
     }
 
 }

@@ -21,7 +21,7 @@ class JobSpec extends Specification {
 
         and: 'Configuration'
         Configuration config =
-            new Configuration(driverInstance: new InMemoryDriver().start())
+            new Configuration(driverInstance: new InMemoryDriver())
 
         and: 'A executor to launch the process'
         Client client = new ClientBuilder(config).build() // SIMPLE OBJECT
@@ -29,21 +29,20 @@ class JobSpec extends Specification {
 
         when: 'Sending the job to the broker'
         String jobId =
-            client.queue(
-                'priority-queue',
+            client.enqueue(
                 job.data(input).
                     output(Output).
                     task(TaskSpecSample)
             )
         assert jobId
-        while(client.status('priority-queue', jobId) in [PENDING, WORKING]) { Thread.sleep(2000) }
+        while(client.status(jobId) in [PENDING, WORKING]) { Thread.sleep(2000) }
 
         then: 'The solution should have been processed successfully'
-        client.get('priority-queue', jobId)
-        client.get('priority-queue', jobId).result.name == 'modified John'
+        client.getFinished(jobId)
+        client.getFinished(jobId).result.name == 'modified John'
 
         and: 'The job should have been marked as DONE by the client local memory'
-        client.status('priority-queue', jobId) == DONE
+        client.status(jobId) == DONE
     }
 
 }
