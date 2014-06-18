@@ -14,15 +14,20 @@ class ServerImpl extends DefaultActor implements Server {
     void act() {
         loop {
             Job nextJob = driver.get('priority-queue')
+            println "Lala"
             if (nextJob) {
                 Thread.sleep(2000)
                 nextJob.status = JobStatus.DONE
+                println nextJob.taskList.size()
                 nextJob.result = nextJob.taskList.collect {
-                    def a = it.execute()
+                    println "a1"
+                    def a = it.newInstance(new Input(name:'lala')).execute().get()
+                    println "a2"
                     println "result:$a"
                     a
-                }.first()
-                driver.queue('outbox', nextJob)
+                }.find{it}
+                println "Sending job to outbox"
+                driver.queue('priority-queue', nextJob)
             }
         }
     }
