@@ -3,6 +3,6 @@ package grootask.aux
 import groovy.transform.Immutable
 
 @Immutable
-class Output {
+class Output implements Serializable {
     String name
 }

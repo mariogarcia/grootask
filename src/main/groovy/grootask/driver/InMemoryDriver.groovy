@@ -14,9 +14,8 @@ class InMemoryDriver implements Driver {
         Map queues = [:].withDefault { [:] }
 
         String queue(final String routingKey, final Job job) {
-            job.id = "${new Date().time}"
+            job.id = job.id ?: "${new Date().time}"
             queues[routingKey].get(job.id, job)
-            println queues
 
             return job.id
         }
@@ -26,7 +25,6 @@ class InMemoryDriver implements Driver {
         }
 
         Object get(final String routingKey, final String jobID) {
-            println "searching for ${jobID} with key ${routingKey} in ${queues}"
             return queues[routingKey][jobID]
         }
 

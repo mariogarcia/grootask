@@ -39,7 +39,7 @@ class JobSpec extends Specification {
         while(client.status('priority-queue', jobId) in [PENDING, WORKING]) { Thread.sleep(2000) }
 
         then: 'The solution should have been processed successfully'
-        client.get('priority-queue', jobId).result
+        client.get('priority-queue', jobId)
         client.get('priority-queue', jobId).result.name == 'modified John'
 
         and: 'The job should have been marked as DONE by the client local memory'
