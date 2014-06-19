@@ -34,7 +34,7 @@ class JobSpec extends Specification {
 
         assert jobId
         while(client.status(jobId) in [PENDING, WORKING]) {
-            Thread.sleep(2000)
+            Thread.sleep(1000)
         }
 
         then: 'The solution should have been processed successfully'

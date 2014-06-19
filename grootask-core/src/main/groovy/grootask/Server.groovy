@@ -8,21 +8,22 @@ import groovyx.gpars.actor.DefaultActor
 class Server extends DefaultActor {
 
     final Driver driver
+    final PlanExecutor planExecutor
 
     Server(final Driver driver) {
         this.driver = driver
+        this.planExecutor = new PlanExecutor(driver)
+    }
+
+    void afterStart() {
+        planExecutor.start()
     }
 
     void act() {
         loop {
             Job nextJob = driver.getPending()
             if (nextJob) {
-                nextJob.result =
-                    nextJob.plan.
-                        newInstance(nextJob.data).
-                        execute().
-                        get()
-                driver.finish(nextJob)
+                planExecutor << nextJob
             }
         }
     }
