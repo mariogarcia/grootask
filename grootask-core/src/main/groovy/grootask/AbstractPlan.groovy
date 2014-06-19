@@ -2,11 +2,11 @@ package grootask
 
 import groovyx.gpars.dataflow.DataflowVariable
 
-abstract class AbstractTask<I,O> {
+abstract class AbstractPlan<I,O> {
 
     final I input
 
-    AbstractTask(final I input) {
+    AbstractPlan(final I input) {
         this.input = input
     }
 

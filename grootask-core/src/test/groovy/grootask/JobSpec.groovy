@@ -16,10 +16,7 @@ import spock.lang.Specification
 class JobSpec extends Specification {
 
     void 'Launching a job with a single task'() {
-        given: 'An instance of a job'
-        Job job = new Job()
-
-        and: 'Some input'
+        given: 'Some input for passing to the job'
         Input input = new Input(name:'John')
 
         and: 'Configuration'
@@ -32,12 +29,9 @@ class JobSpec extends Specification {
         Server server = new Server(driver).start() // ACTOR
 
         when: 'Sending the job to the broker'
-        String jobId =
-            client.enqueue(
-                job.data(input).
-                    output(Output).
-                    task(TaskSpecSample)
-            )
+        Job job = new Job(data: input, plan: PlanSpecSample)
+        String jobId = client.enqueue(job)
+
         assert jobId
         while(client.status(jobId) in [PENDING, WORKING]) {
             Thread.sleep(2000)
