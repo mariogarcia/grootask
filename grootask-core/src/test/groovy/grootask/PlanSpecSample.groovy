@@ -1,21 +1,31 @@
 package grootask
 
+import static groovyx.gpars.dataflow.Dataflow.task
+
 import grootask.aux.Input
 import grootask.aux.Output
 
 import groovy.transform.InheritConstructors
 
+import groovyx.gpars.dataflow.Promise
+import groovyx.gpars.dataflow.Dataflows
 import groovyx.gpars.dataflow.DataflowVariable
-import groovyx.gpars.activeobject.ActiveObject
-import groovyx.gpars.activeobject.ActiveMethod
 
-
-@ActiveObject
 @InheritConstructors
 class PlanSpecSample extends AbstractPlan<Input,Output> {
-    @ActiveMethod
-    DataflowVariable<Output> execute() {
-        return new Output(name: "modified ${input.name}")
+
+    Promise<Output> execute() {
+
+        Dataflows flow = new Dataflows()
+
+        task {
+            flow.changedString =  "modified ${input.name}"
+        }
+
+        task {
+            flow.output =  new Output(name: flow.changedString)
+        }
+
     }
 }
 

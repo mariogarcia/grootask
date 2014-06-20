@@ -1,6 +1,6 @@
 package grootask
 
-import groovyx.gpars.dataflow.DataflowVariable
+import groovyx.gpars.dataflow.Promise
 
 abstract class AbstractPlan<I,O> {
 
@@ -10,6 +10,6 @@ abstract class AbstractPlan<I,O> {
         this.input = input
     }
 
-    abstract DataflowVariable<O> execute()
+    abstract Promise<O> execute()
 
 }

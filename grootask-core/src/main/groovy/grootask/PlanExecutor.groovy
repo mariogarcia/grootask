@@ -11,13 +11,15 @@ class PlanExecutor extends DefaultActor {
         this.driver = driver
     }
 
+    // Maybe this actor can react to new jobs and finished jobs
+    // former can be process latter can be marked asynchronously
     void act() {
         loop {
             react { Job job ->
-                job.with {
-                    result = plan.newInstance(data).execute().get()
+                job.plan.newInstance(job.data).execute() >> { result ->
+                   job.result = result
+                   driver.finish(job)
                 }
-                driver.finish(job)
             }
         }
     }
