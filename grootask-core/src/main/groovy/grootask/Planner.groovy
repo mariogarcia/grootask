@@ -6,22 +6,22 @@ import groovyx.gpars.actor.DefaultActor
 class Planner extends DefaultActor {
 
     final Driver driver
-    final PlanExecutor planExecutor
+    final PlanDispatcher planDispatcher
 
     Planner(final Driver driver) {
         this.driver = driver
-        this.planExecutor = new PlanExecutor(driver)
+        this.planDispatcher = new PlanDispatcher(driver)
     }
 
     void afterStart() {
-        this.planExecutor.start()
+        this.planDispatcher.start()
     }
 
     void act() {
         loop {
             Job nextJob = driver.getPending()
             if (nextJob) {
-                planExecutor << nextJob
+                planDispatcher << nextJob
             }
         }
     }

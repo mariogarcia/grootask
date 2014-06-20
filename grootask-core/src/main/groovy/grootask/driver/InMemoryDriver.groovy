@@ -47,6 +47,8 @@ class InMemoryDriver implements Driver {
     @ActiveMethod
     void finish(final Job job) {
         job.status = JobStatus.DONE
+
+        queues[inboxQueueName].remove(job.id)
         queues[doneQueueName].get(job.id, job)
         queues[statusQueueName].get(job.id, JobStatus.DONE)
     }
