@@ -1,5 +1,8 @@
 package grootask.driver
 
+import static grootask.json.JSON.toJson
+import static grootask.json.JSON.fromJson
+
 import grootask.Job
 import grootask.JobStatus
 import grootask.Configuration
@@ -20,7 +23,7 @@ class InMemoryDriver implements Driver {
     @ActiveMethod(blocking = true)
     String enqueue(final Job job) {
         job.id = job.id ?: "${new Date().time}"
-        queues[inboxQueueName].get(job.id, job)
+        queues[inboxQueueName].get(job.id, toJson(job))
         queues[statusQueueName].get(job.id, JobStatus.PENDING)
 
         return job.id
@@ -28,12 +31,12 @@ class InMemoryDriver implements Driver {
 
     @ActiveMethod(blocking = true)
     JobStatus status(final String  jobID) {
-        return queues?.get(statusQueueName)?.get(jobID).status ?: JobStatus.PENDING
+        return fromJson(queues?.get(statusQueueName)?.get(jobID),Job).status ?: JobStatus.PENDING
     }
 
     @ActiveMethod(blocking = true)
     Object getFinished(final String jobID) {
-        return queues[doneQueueName][jobID]
+        return fromJson(queues[doneQueueName][jobID],Job)
     }
 
     @ActiveMethod(blocking = true)
@@ -41,7 +44,7 @@ class InMemoryDriver implements Driver {
         if (!queues[inboxQueueName]) {
            return
         }
-        return queues[inboxQueueName].values().first()
+        return fromJson(queues[inboxQueueName].values().first(), Job)
     }
 
     @ActiveMethod
@@ -49,7 +52,7 @@ class InMemoryDriver implements Driver {
         job.status = JobStatus.DONE
 
         queues[inboxQueueName].remove(job.id)
-        queues[doneQueueName].get(job.id, job)
+        queues[doneQueueName].get(job.id, toJson(job))
         queues[statusQueueName].get(job.id, JobStatus.DONE)
     }
 
