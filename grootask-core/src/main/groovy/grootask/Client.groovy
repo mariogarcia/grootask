@@ -18,14 +18,34 @@ import groovyx.gpars.dataflow.DataflowVariable
  */
 class Client {
 
+    static ClientPlan {
+        final Driver driver
+        final Class<AbstractPlan> plan
+        String jsonInput
+
+        ClientPlan(Class<AbstractPlan> plan,Driver driver) {
+            this.plan = plan
+            this.driver = driver
+        }
+
+        ClientPlan withInput(Object input) {
+            this.jsonInput = JSON.toJson(input)
+        }
+
+        JobResult get() {
+            return driver.enqueue(job).get()
+        }
+
+    }
+
     final Driver driver
 
     Client(final Driver driver) {
         this.driver = driver
     }
 
-    String enqueue(final Job job) {
-        return driver.enqueue(job)
+    ClientPlan enqueue(final Job job) {
+        new ClientPlan(job.plan)
     }
 
     JobStatus status(final String  jobID) {
