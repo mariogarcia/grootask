@@ -1,13 +1,60 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = 'http://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+    dependencies {
+        classpath "org.spockframework:spock-report:1.0-groovy-1.8-SNAPSHOT"
+    }
+}
+
 apply plugin: 'groovy'
+apply plugin: 'project-report'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy:2.2.2'
+    compile 'org.codehaus.groovy:groovy:2.3.2'
     compile 'org.codehaus.gpars:gpars:1.2.0'
 
-    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.3-SNAPSHOT'
     testCompile 'junit:junit:4.11'
+}
+
+// Custom test report for the new style Spock reports
+ext.spockLogFileDir = file("$buildDir/spock/logFiles")
+ext.configFile = file("SpockReportConfig.groovy")
+
+test {
+    systemProperty "spock.configuration", configFile
+    systemProperty "spock.logFileDir", spockLogFileDir
+
+    ignoreFailures = true
+
+    doFirst {
+        delete spockLogFileDir
+    }
+}
+
+task testReport(dependsOn: test) {
+    doFirst {
+        Set files = spockLogFileDir.listFiles()
+        def reportDir = file("$buildDir/reports/spock")
+        new org.spockframework.report.HtmlReportGenerator().with {
+            reportName = 'Groovy Distributed Tasks'
+            reportFileName = 'index.html'
+            logFiles = files
+            outputDirectory = reportDir
+            local = false
+            debug = false
+            generate()
+        }
+        println "See Spock report at ${org.spockframework.util.ConsoleUtil.asClickableFileUrl(new File(reportDir,'index.html'))}"
+    }
 }

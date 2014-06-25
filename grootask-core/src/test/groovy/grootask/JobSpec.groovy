@@ -12,9 +12,19 @@ import grootask.driver.DriverBuilder
 import grootask.driver.InMemoryDriver
 
 import spock.lang.Specification
+import spock.lang.Issue
+import spock.lang.Title
+import spock.lang.Narrative
 
+@Title("Sending jobs to workers")
+@Narrative('''
+    The library should be able to send jobs using the driver instance. Once the job
+    has been sent, user would be able to recover the job's result whether synchronously
+    or asyncrhonously
+''')
 class JobSpec extends Specification {
 
+    @Issue("http://www.anyissuetracker.com/#22")
     void 'Launching a job with a single task'() {
         given: 'Some input for passing to the job'
         Input input = new Input(name:'John')
